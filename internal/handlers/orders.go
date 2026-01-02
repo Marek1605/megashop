@@ -575,7 +575,7 @@ func GenerateInvoice(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid order ID"})
 	}
 
-	shop, err := verifyShopOwnership(c, shopID)
+	_, err := verifyShopOwnership(c, shopID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Shop not found"})
 	}
