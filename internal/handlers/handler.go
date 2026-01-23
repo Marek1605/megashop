@@ -688,11 +688,11 @@ func (h *Handler) GetDashboardStats(w http.ResponseWriter, r *http.Request) {
 
 	stats := make(map[string]interface{})
 
-	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM products WHERE is_active = true").Scan(&stats["total_products"])
-	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM categories WHERE is_active = true").Scan(&stats["total_categories"])
-	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM feeds WHERE active = true").Scan(&stats["total_feeds"])
-	h.db.QueryRow(ctx, "SELECT COALESCE(SUM(view_count), 0) FROM products").Scan(&stats["total_views"])
-	h.db.QueryRow(ctx, "SELECT COALESCE(SUM(click_count), 0) FROM products").Scan(&stats["total_clicks"])
+	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM products WHERE is_active = true").Scan(stats["total_products"])
+	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM categories WHERE is_active = true").Scan(stats["total_categories"])
+	h.db.QueryRow(ctx, "SELECT COUNT(*) FROM feeds WHERE active = true").Scan(stats["total_feeds"])
+	h.db.QueryRow(ctx, "SELECT COALESCE(SUM(view_count), 0) FROM products").Scan(stats["total_views"])
+	h.db.QueryRow(ctx, "SELECT COALESCE(SUM(click_count), 0) FROM products").Scan(stats["total_clicks"])
 
 	h.json(w, http.StatusOK, stats)
 }
