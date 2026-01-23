@@ -7,16 +7,16 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy go mod files
-COPY go.mod go.sum ./
+COPY go.mod go.sum* ./
 RUN go mod download
 
 # Copy source
 COPY . .
 
-# Build binary
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /eshop-builder ./cmd/server
+# Build
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/main.go
 
-# Runtime stage
+# Final stage
 FROM alpine:3.19
 
 WORKDIR /app
@@ -25,19 +25,13 @@ WORKDIR /app
 RUN apk --no-cache add ca-certificates tzdata
 
 # Copy binary
-COPY --from=builder /eshop-builder .
+COPY --from=builder /app/main .
 
-# Copy static files if any
-COPY --from=builder /app/static ./static
-COPY --from=builder /app/templates ./templates
+# Copy migrations
+COPY --from=builder /app/migrations ./migrations
 
-# Create non-root user
-RUN adduser -D -g '' appuser
-USER appuser
-
+# Expose port
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/health || exit 1
-
-ENTRYPOINT ["./eshop-builder"]
+# Run
+CMD ["./main"]

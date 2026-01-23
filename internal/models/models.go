@@ -1,467 +1,346 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-// User model
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// USER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 type User struct {
-	ID           uuid.UUID  `json:"id"`
-	Email        string     `json:"email"`
-	PasswordHash string     `json:"-"`
-	Name         *string    `json:"name"`
-	Plan         string     `json:"plan"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
+	ID           string     `json:"id" db:"id"`
+	Email        string     `json:"email" db:"email"`
+	PasswordHash string     `json:"-" db:"password_hash"`
+	Name         string     `json:"name" db:"name"`
+	Role         string     `json:"role" db:"role"` // admin, editor
+	IsActive     bool       `json:"is_active" db:"is_active"`
+	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
+	LastLogin    *time.Time `json:"last_login" db:"last_login"`
 }
 
-// Shop model
-type Shop struct {
-	ID              uuid.UUID  `json:"id"`
-	UserID          uuid.UUID  `json:"user_id"`
-	Name            string     `json:"name"`
-	Slug            string     `json:"slug"`
-	Description     *string    `json:"description"`
-	Logo            *string    `json:"logo"`
-	Currency        string     `json:"currency"`
-	Language        string     `json:"language"`
-	PrimaryColor    string     `json:"primary_color"`
-	Email           *string    `json:"email"`
-	Phone           *string    `json:"phone"`
-	Address         *string    `json:"address"`
-	Facebook        *string    `json:"facebook"`
-	Instagram       *string    `json:"instagram"`
-	MetaTitle       *string    `json:"meta_title"`
-	MetaDescription *string    `json:"meta_description"`
-	IsActive        bool       `json:"is_active"`
-	IsPublished     bool       `json:"is_published"`
-	CustomDomain    *string    `json:"custom_domain"`
-	CreatedAt       time.Time  `json:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at"`
-}
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PRODUCT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Category model
-type Category struct {
-	ID          uuid.UUID  `json:"id"`
-	ShopID      uuid.UUID  `json:"shop_id"`
-	ParentID    *uuid.UUID `json:"parent_id"`
-	Name        string     `json:"name"`
-	Slug        string     `json:"slug"`
-	Description *string    `json:"description"`
-	Image       *string    `json:"image"`
-	Position    int        `json:"position"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	// Relations
-	Products    []Product  `json:"products,omitempty"`
-	ProductCount int       `json:"product_count,omitempty"`
-}
-
-// Product model
 type Product struct {
-	ID               uuid.UUID        `json:"id"`
-	ShopID           uuid.UUID        `json:"shop_id"`
-	CategoryID       *uuid.UUID       `json:"category_id"`
-	Name             string           `json:"name"`
-	Slug             string           `json:"slug"`
-	Description      *string          `json:"description"`
-	ShortDescription *string          `json:"short_description"`
-	Price            float64          `json:"price"`
-	ComparePrice     *float64         `json:"compare_price"`
-	CostPrice        *float64         `json:"cost_price"`
-	SKU              *string          `json:"sku"`
-	Barcode          *string          `json:"barcode"`
-	Quantity         int              `json:"quantity"`
-	TrackInventory   bool             `json:"track_inventory"`
-	AllowBackorder   bool             `json:"allow_backorder"`
-	Weight           *float64         `json:"weight"`
-	Width            *float64         `json:"width"`
-	Height           *float64         `json:"height"`
-	Length           *float64         `json:"length"`
-	MetaTitle        *string          `json:"meta_title"`
-	MetaDescription  *string          `json:"meta_description"`
-	IsActive         bool             `json:"is_active"`
-	IsFeatured       bool             `json:"is_featured"`
-	CreatedAt        time.Time        `json:"created_at"`
-	UpdatedAt        time.Time        `json:"updated_at"`
-	// Relations
-	Images           []ProductImage   `json:"images,omitempty"`
-	Variants         []ProductVariant `json:"variants,omitempty"`
-	Category         *Category        `json:"category,omitempty"`
+	ID               string    `json:"id" db:"id"`
+	Slug             string    `json:"slug" db:"slug"`
+	Title            string    `json:"title" db:"title"`
+	Description      string    `json:"description" db:"description"`
+	ShortDescription string    `json:"short_description" db:"short_description"`
+	Price            float64   `json:"price" db:"price"`
+	RegularPrice     *float64  `json:"regular_price" db:"regular_price"`
+	SalePrice        *float64  `json:"sale_price" db:"sale_price"`
+	Currency         string    `json:"currency" db:"currency"`
+	EAN              *string   `json:"ean" db:"ean"`
+	SKU              *string   `json:"sku" db:"sku"`
+	MPN              *string   `json:"mpn" db:"mpn"`
+	ExternalID       *string   `json:"external_id" db:"external_id"`
+	ImageURL         *string   `json:"image_url" db:"image_url"`
+	GalleryImages    JSONArray `json:"gallery_images" db:"gallery_images"`
+	CategoryID       *string   `json:"category_id" db:"category_id"`
+	CategoryPath     string    `json:"category_path" db:"category_path"`
+	Brand            *string   `json:"brand" db:"brand"`
+	Manufacturer     *string   `json:"manufacturer" db:"manufacturer"`
+	StockStatus      string    `json:"stock_status" db:"stock_status"`
+	StockQuantity    *int      `json:"stock_quantity" db:"stock_quantity"`
+	IsActive         bool      `json:"is_active" db:"is_active"`
+	IsFeatured       bool      `json:"is_featured" db:"is_featured"`
+	Attributes       JSONMap   `json:"attributes" db:"attributes"`
+	AffiliateURL     *string   `json:"affiliate_url" db:"affiliate_url"`
+	ButtonText       *string   `json:"button_text" db:"button_text"`
+	DeliveryTime     *string   `json:"delivery_time" db:"delivery_time"`
+	FeedID           *string   `json:"feed_id" db:"feed_id"`
+	FeedChecksum     *string   `json:"feed_checksum" db:"feed_checksum"`
+	ViewCount        int       `json:"view_count" db:"view_count"`
+	ClickCount       int       `json:"click_count" db:"click_count"`
+	CreatedAt        time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
+
+	// Joined fields
+	Category *Category `json:"category,omitempty"`
 }
 
-// ProductImage model
-type ProductImage struct {
-	ID        uuid.UUID `json:"id"`
-	ProductID uuid.UUID `json:"product_id"`
-	URL       string    `json:"url"`
-	Alt       *string   `json:"alt"`
-	Position  int       `json:"position"`
-	CreatedAt time.Time `json:"created_at"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CATEGORY
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type Category struct {
+	ID           string      `json:"id" db:"id"`
+	Name         string      `json:"name" db:"name"`
+	Slug         string      `json:"slug" db:"slug"`
+	Description  *string     `json:"description" db:"description"`
+	ImageURL     *string     `json:"image_url" db:"image_url"`
+	ParentID     *string     `json:"parent_id" db:"parent_id"`
+	ProductCount int         `json:"product_count" db:"product_count"`
+	SortOrder    int         `json:"sort_order" db:"sort_order"`
+	IsActive     bool        `json:"is_active" db:"is_active"`
+	CreatedAt    time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at" db:"updated_at"`
+	Children     []*Category `json:"children,omitempty"`
 }
 
-// ProductVariant model
-type ProductVariant struct {
-	ID        uuid.UUID       `json:"id"`
-	ProductID uuid.UUID       `json:"product_id"`
-	Name      string          `json:"name"`
-	SKU       *string         `json:"sku"`
-	Price     float64         `json:"price"`
-	Quantity  int             `json:"quantity"`
-	Options   json.RawMessage `json:"options"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// FEED
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type FeedType string
+
+const (
+	FeedTypeXML  FeedType = "xml"
+	FeedTypeCSV  FeedType = "csv"
+	FeedTypeJSON FeedType = "json"
+)
+
+type FeedStatus string
+
+const (
+	FeedStatusActive  FeedStatus = "active"
+	FeedStatusRunning FeedStatus = "running"
+	FeedStatusError   FeedStatus = "error"
+	FeedStatusPaused  FeedStatus = "paused"
+)
+
+type ImportMode string
+
+const (
+	ImportModeCreateUpdate ImportMode = "create_update"
+	ImportModeCreateOnly   ImportMode = "create_only"
+	ImportModeUpdateOnly   ImportMode = "update_only"
+)
+
+type MatchBy string
+
+const (
+	MatchByEAN        MatchBy = "ean"
+	MatchBySKU        MatchBy = "sku"
+	MatchByTitle      MatchBy = "title"
+	MatchByExternalID MatchBy = "external_id"
+)
+
+type Feed struct {
+	ID              string     `json:"id" db:"id"`
+	Name            string     `json:"name" db:"name"`
+	Description     string     `json:"description" db:"description"`
+	FeedURL         string     `json:"feed_url" db:"feed_url"`
+	FeedType        FeedType   `json:"feed_type" db:"feed_type"`
+	XMLItemPath     string     `json:"xml_item_path" db:"xml_item_path"`
+	CSVDelimiter    string     `json:"csv_delimiter" db:"csv_delimiter"`
+	CSVHasHeader    bool       `json:"csv_has_header" db:"csv_has_header"`
+	ImportMode      ImportMode `json:"import_mode" db:"import_mode"`
+	MatchBy         MatchBy    `json:"match_by" db:"match_by"`
+	DefaultCategory *string    `json:"default_category" db:"default_category"`
+	ImportImages    bool       `json:"import_images" db:"import_images"`
+	CreateAttributes bool      `json:"create_attributes" db:"create_attributes"`
+	ScheduleEnabled bool       `json:"schedule_enabled" db:"schedule_enabled"`
+	ScheduleCron    string     `json:"schedule_cron" db:"schedule_cron"`
+	Active          bool       `json:"active" db:"active"`
+	Status          FeedStatus `json:"status" db:"status"`
+	LastRun         *time.Time `json:"last_run" db:"last_run"`
+	LastError       *string    `json:"last_error" db:"last_error"`
+	TotalProducts   int        `json:"total_products" db:"total_products"`
+	FieldMappings   JSONArray  `json:"field_mappings" db:"field_mappings"`
+	Settings        JSONMap    `json:"settings" db:"settings"`
+	CreatedAt       time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at" db:"updated_at"`
 }
 
-// Customer model
-type Customer struct {
-	ID               uuid.UUID  `json:"id"`
-	ShopID           uuid.UUID  `json:"shop_id"`
-	Email            string     `json:"email"`
-	FirstName        *string    `json:"first_name"`
-	LastName         *string    `json:"last_name"`
-	Phone            *string    `json:"phone"`
-	Address          *string    `json:"address"`
-	City             *string    `json:"city"`
-	Zip              *string    `json:"zip"`
-	Country          string     `json:"country"`
-	AcceptsMarketing bool       `json:"accepts_marketing"`
-	Notes            *string    `json:"notes"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
-	// Computed
-	OrdersCount      int        `json:"orders_count,omitempty"`
-	TotalSpent       float64    `json:"total_spent,omitempty"`
+type FieldMapping struct {
+	ID             string `json:"id"`
+	SourceField    string `json:"source_field"`
+	TargetField    string `json:"target_field"`
+	TransformType  string `json:"transform_type"`
+	TransformValue string `json:"transform_value"`
+	DefaultValue   string `json:"default_value"`
+	IsRequired     bool   `json:"is_required"`
 }
 
-// Order model
-type Order struct {
-	ID                uuid.UUID    `json:"id"`
-	ShopID            uuid.UUID    `json:"shop_id"`
-	CustomerID        *uuid.UUID   `json:"customer_id"`
-	OrderNumber       string       `json:"order_number"`
-	Status            string       `json:"status"`
-	PaymentStatus     string       `json:"payment_status"`
-	Subtotal          float64      `json:"subtotal"`
-	Shipping          float64      `json:"shipping"`
-	Tax               float64      `json:"tax"`
-	Discount          float64      `json:"discount"`
-	Total             float64      `json:"total"`
-	Currency          string       `json:"currency"`
-	ShippingFirstName *string      `json:"shipping_first_name"`
-	ShippingLastName  *string      `json:"shipping_last_name"`
-	ShippingCompany   *string      `json:"shipping_company"`
-	ShippingAddress   *string      `json:"shipping_address"`
-	ShippingCity      *string      `json:"shipping_city"`
-	ShippingZip       *string      `json:"shipping_zip"`
-	ShippingCountry   *string      `json:"shipping_country"`
-	ShippingPhone     *string      `json:"shipping_phone"`
-	BillingFirstName  *string      `json:"billing_first_name"`
-	BillingLastName   *string      `json:"billing_last_name"`
-	BillingCompany    *string      `json:"billing_company"`
-	BillingAddress    *string      `json:"billing_address"`
-	BillingCity       *string      `json:"billing_city"`
-	BillingZip        *string      `json:"billing_zip"`
-	BillingCountry    *string      `json:"billing_country"`
-	BillingPhone      *string      `json:"billing_phone"`
-	BillingEmail      *string      `json:"billing_email"`
-	PaymentMethod     *string      `json:"payment_method"`
-	PaymentID         *string      `json:"payment_id"`
-	ShippingMethod    *string      `json:"shipping_method"`
-	TrackingNumber    *string      `json:"tracking_number"`
-	CustomerNote      *string      `json:"customer_note"`
-	InternalNote      *string      `json:"internal_note"`
-	CouponCode        *string      `json:"coupon_code"`
-	CouponID          *uuid.UUID   `json:"coupon_id"`
-	CreatedAt         time.Time    `json:"created_at"`
-	UpdatedAt         time.Time    `json:"updated_at"`
-	// Relations
-	Items             []OrderItem    `json:"items,omitempty"`
-	History           []OrderHistory `json:"history,omitempty"`
-	Customer          *Customer      `json:"customer,omitempty"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// IMPORT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type ImportStatus string
+
+const (
+	ImportStatusIdle      ImportStatus = "idle"
+	ImportStatusRunning   ImportStatus = "running"
+	ImportStatusCompleted ImportStatus = "completed"
+	ImportStatusFailed    ImportStatus = "failed"
+	ImportStatusCancelled ImportStatus = "cancelled"
+)
+
+type ImportHistory struct {
+	ID           string       `json:"id" db:"id"`
+	FeedID       string       `json:"feed_id" db:"feed_id"`
+	StartedAt    time.Time    `json:"started_at" db:"started_at"`
+	FinishedAt   *time.Time   `json:"finished_at" db:"finished_at"`
+	Duration     int          `json:"duration" db:"duration"`
+	TotalItems   int          `json:"total_items" db:"total_items"`
+	Processed    int          `json:"processed" db:"processed"`
+	Created      int          `json:"created" db:"created"`
+	Updated      int          `json:"updated" db:"updated"`
+	Skipped      int          `json:"skipped" db:"skipped"`
+	Errors       int          `json:"errors" db:"errors"`
+	Status       ImportStatus `json:"status" db:"status"`
+	ErrorMessage *string      `json:"error_message" db:"error_message"`
+	TriggeredBy  string       `json:"triggered_by" db:"triggered_by"`
 }
 
-// OrderItem model
-type OrderItem struct {
-	ID             uuid.UUID       `json:"id"`
-	OrderID        uuid.UUID       `json:"order_id"`
-	ProductID      *uuid.UUID      `json:"product_id"`
-	VariantID      *uuid.UUID      `json:"variant_id"`
-	Name           string          `json:"name"`
-	SKU            *string         `json:"sku"`
-	Quantity       int             `json:"quantity"`
-	Price          float64         `json:"price"`
-	Total          float64         `json:"total"`
-	VariantName    *string         `json:"variant_name"`
-	VariantOptions json.RawMessage `json:"variant_options"`
+type ImportProgress struct {
+	FeedID      string       `json:"feed_id"`
+	HistoryID   string       `json:"history_id"`
+	Status      ImportStatus `json:"status"`
+	Percent     int          `json:"percent"`
+	Total       int          `json:"total"`
+	Processed   int          `json:"processed"`
+	Created     int          `json:"created"`
+	Updated     int          `json:"updated"`
+	Skipped     int          `json:"skipped"`
+	Errors      int          `json:"errors"`
+	Message     string       `json:"message"`
+	CurrentItem string       `json:"current_item"`
+	Elapsed     int          `json:"elapsed"`
+	ETA         int          `json:"eta"`
+	Speed       float64      `json:"speed"`
+	Logs        []LogEntry   `json:"logs"`
 }
 
-// OrderHistory model
-type OrderHistory struct {
-	ID        uuid.UUID `json:"id"`
-	OrderID   uuid.UUID `json:"order_id"`
-	Status    string    `json:"status"`
-	Note      *string   `json:"note"`
-	CreatedAt time.Time `json:"created_at"`
+type LogEntry struct {
+	Time    time.Time `json:"time"`
+	Level   string    `json:"level"`
+	Message string    `json:"message"`
 }
 
-// ShippingMethod model
-type ShippingMethod struct {
-	ID            uuid.UUID  `json:"id"`
-	ShopID        uuid.UUID  `json:"shop_id"`
-	Name          string     `json:"name"`
-	Description   *string    `json:"description"`
-	Price         float64    `json:"price"`
-	FreeFrom      *float64   `json:"free_from"`
-	EstimatedDays *string    `json:"estimated_days"`
-	Carrier       *string    `json:"carrier"`
-	Countries     []string   `json:"countries"`
-	MaxWeight     *float64   `json:"max_weight"`
-	IsActive      bool       `json:"is_active"`
-	Position      int        `json:"position"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+// FeedItem - Item mapovaný z feedu
+type FeedItem struct {
+	Title            string
+	Description      string
+	ShortDescription string
+	Price            float64
+	RegularPrice     float64
+	SalePrice        float64
+	EAN              string
+	SKU              string
+	MPN              string
+	ExternalID       string
+	ImageURL         string
+	GalleryImages    []string
+	CategoryPath     string
+	Brand            string
+	Manufacturer     string
+	StockStatus      string
+	StockQuantity    int
+	Attributes       map[string]string
+	AffiliateURL     string
+	ButtonText       string
+	DeliveryTime     string
 }
 
-// PaymentMethod model
-type PaymentMethod struct {
-	ID           uuid.UUID `json:"id"`
-	ShopID       uuid.UUID `json:"shop_id"`
-	Name         string    `json:"name"`
-	Description  *string   `json:"description"`
-	Type         string    `json:"type"`
-	Fee          float64   `json:"fee"`
-	Instructions *string   `json:"instructions"`
-	IsActive     bool      `json:"is_active"`
-	Position     int       `json:"position"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SHOP CONFIG
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type ShopConfig struct {
+	ID              string    `json:"id" db:"id"`
+	ShopName        string    `json:"shop_name" db:"shop_name"`
+	ShopURL         string    `json:"shop_url" db:"shop_url"`
+	Logo            *string   `json:"logo" db:"logo"`
+	Favicon         *string   `json:"favicon" db:"favicon"`
+	Currency        string    `json:"currency" db:"currency"`
+	Locale          string    `json:"locale" db:"locale"`
+	Template        string    `json:"template" db:"template"` // aurora, minimal, modern
+	PrimaryColor    string    `json:"primary_color" db:"primary_color"`
+	SecondaryColor  string    `json:"secondary_color" db:"secondary_color"`
+	GoogleAnalytics *string   `json:"google_analytics" db:"google_analytics"`
+	MetaTitle       *string   `json:"meta_title" db:"meta_title"`
+	MetaDescription *string   `json:"meta_description" db:"meta_description"`
+	CustomCSS       *string   `json:"custom_css" db:"custom_css"`
+	CustomJS        *string   `json:"custom_js" db:"custom_js"`
+	Settings        JSONMap   `json:"settings" db:"settings"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// Coupon model
-type Coupon struct {
-	ID            uuid.UUID  `json:"id"`
-	ShopID        uuid.UUID  `json:"shop_id"`
-	Code          string     `json:"code"`
-	Description   *string    `json:"description"`
-	Type          string     `json:"type"`
-	Value         float64    `json:"value"`
-	MinOrderValue *float64   `json:"min_order_value"`
-	MaxUses       *int       `json:"max_uses"`
-	UsedCount     int        `json:"used_count"`
-	StartsAt      *time.Time `json:"starts_at"`
-	ExpiresAt     *time.Time `json:"expires_at"`
-	IsActive      bool       `json:"is_active"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// JSON HELPERS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type JSONMap map[string]interface{}
+
+func (j *JSONMap) Scan(value interface{}) error {
+	if value == nil {
+		*j = make(map[string]interface{})
+		return nil
+	}
+	bytes, ok := value.([]byte)
+	if !ok {
+		return nil
+	}
+	return json.Unmarshal(bytes, j)
 }
 
-// Payment model
-type Payment struct {
-	ID          uuid.UUID       `json:"id"`
-	Gateway     string          `json:"gateway"`
-	GatewayID   string          `json:"gateway_id"`
-	OrderID     uuid.UUID       `json:"order_id"`
-	OrderNumber string          `json:"order_number"`
-	Amount      float64         `json:"amount"`
-	Currency    string          `json:"currency"`
-	Status      string          `json:"status"`
-	Metadata    json.RawMessage `json:"metadata"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+func (j JSONMap) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
 }
 
-// ShopSettings model
-type ShopSettings struct {
-	ID                uuid.UUID `json:"id"`
-	ShopID            uuid.UUID `json:"shop_id"`
-	CompanyName       *string   `json:"company_name"`
-	ICO               *string   `json:"ico"`
-	DIC               *string   `json:"dic"`
-	ICDPH             *string   `json:"ic_dph"`
-	BankName          *string   `json:"bank_name"`
-	IBAN              *string   `json:"iban"`
-	SWIFT             *string   `json:"swift"`
-	InvoicePrefix     string    `json:"invoice_prefix"`
-	InvoiceNextNumber int       `json:"invoice_next_number"`
-	InvoiceFooter     *string   `json:"invoice_footer"`
-	TaxRate           float64   `json:"tax_rate"`
-	PricesIncludeTax  bool      `json:"prices_include_tax"`
-	MinOrderValue     *float64  `json:"min_order_value"`
-	OrderNotifyEmail  *string   `json:"order_notify_email"`
-	LowStockThreshold int       `json:"low_stock_threshold"`
-	TermsURL          *string   `json:"terms_url"`
-	PrivacyURL        *string   `json:"privacy_url"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+type JSONArray []interface{}
+
+func (j *JSONArray) Scan(value interface{}) error {
+	if value == nil {
+		*j = []interface{}{}
+		return nil
+	}
+	bytes, ok := value.([]byte)
+	if !ok {
+		return nil
+	}
+	return json.Unmarshal(bytes, j)
 }
 
-// Invoice model
-type Invoice struct {
-	ID               uuid.UUID       `json:"id"`
-	ShopID           uuid.UUID       `json:"shop_id"`
-	InvoiceNumber    string          `json:"invoice_number"`
-	Type             string          `json:"type"`
-	IssueDate        time.Time       `json:"issue_date"`
-	DueDate          time.Time       `json:"due_date"`
-	PaidAt           *time.Time      `json:"paid_at"`
-	Status           string          `json:"status"`
-	Subtotal         float64         `json:"subtotal"`
-	Tax              float64         `json:"tax"`
-	Total            float64         `json:"total"`
-	Currency         string          `json:"currency"`
-	SupplierName     *string         `json:"supplier_name"`
-	SupplierAddress  *string         `json:"supplier_address"`
-	SupplierCity     *string         `json:"supplier_city"`
-	SupplierZip      *string         `json:"supplier_zip"`
-	SupplierCountry  *string         `json:"supplier_country"`
-	SupplierICO      *string         `json:"supplier_ico"`
-	SupplierDIC      *string         `json:"supplier_dic"`
-	SupplierICDPH    *string         `json:"supplier_ic_dph"`
-	SupplierIBAN     *string         `json:"supplier_iban"`
-	CustomerName     *string         `json:"customer_name"`
-	CustomerAddress  *string         `json:"customer_address"`
-	CustomerCity     *string         `json:"customer_city"`
-	CustomerZip      *string         `json:"customer_zip"`
-	CustomerCountry  *string         `json:"customer_country"`
-	CustomerICO      *string         `json:"customer_ico"`
-	CustomerDIC      *string         `json:"customer_dic"`
-	CustomerICDPH    *string         `json:"customer_ic_dph"`
-	CustomerEmail    *string         `json:"customer_email"`
-	Items            json.RawMessage `json:"items"`
-	Note             *string         `json:"note"`
-	OrderID          *uuid.UUID      `json:"order_id"`
-	OrderNumber      *string         `json:"order_number"`
-	CreatedAt        time.Time       `json:"created_at"`
-	UpdatedAt        time.Time       `json:"updated_at"`
+func (j JSONArray) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
 }
 
-// DailyStats model
-type DailyStats struct {
-	ID             uuid.UUID `json:"id"`
-	ShopID         uuid.UUID `json:"shop_id"`
-	Date           time.Time `json:"date"`
-	PageViews      int       `json:"page_views"`
-	UniqueVisitors int       `json:"unique_visitors"`
-	Orders         int       `json:"orders"`
-	Revenue        float64   `json:"revenue"`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TARGET FIELDS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type TargetFieldInfo struct {
+	Key      string `json:"key"`
+	Label    string `json:"label"`
+	Group    string `json:"group"`
+	Required bool   `json:"required"`
 }
 
-// ========================================
-// Request/Response DTOs
-// ========================================
-
-type RegisterRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-	Name     string `json:"name"`
-}
-
-type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
-type AuthResponse struct {
-	Token        string `json:"token"`
-	RefreshToken string `json:"refresh_token"`
-	User         User   `json:"user"`
-}
-
-type CreateShopRequest struct {
-	Name        string  `json:"name" validate:"required,min=2"`
-	Slug        string  `json:"slug"`
-	Description *string `json:"description"`
-	Currency    string  `json:"currency"`
-	Language    string  `json:"language"`
-}
-
-type CreateProductRequest struct {
-	Name             string                `json:"name" validate:"required"`
-	Slug             string                `json:"slug"`
-	Description      *string               `json:"description"`
-	ShortDescription *string               `json:"short_description"`
-	Price            float64               `json:"price" validate:"required,gte=0"`
-	ComparePrice     *float64              `json:"compare_price"`
-	CostPrice        *float64              `json:"cost_price"`
-	SKU              *string               `json:"sku"`
-	Barcode          *string               `json:"barcode"`
-	Quantity         int                   `json:"quantity"`
-	CategoryID       *uuid.UUID            `json:"category_id"`
-	IsActive         *bool                 `json:"is_active"`
-	IsFeatured       *bool                 `json:"is_featured"`
-	Images           []ProductImageRequest `json:"images"`
-	MetaTitle        *string               `json:"meta_title"`
-	MetaDescription  *string               `json:"meta_description"`
-}
-
-type ProductImageRequest struct {
-	URL string  `json:"url" validate:"required,url"`
-	Alt *string `json:"alt"`
-}
-
-type CreateOrderRequest struct {
-	Items          []OrderItemRequest `json:"items" validate:"required,min=1"`
-	Shipping       AddressRequest     `json:"shipping"`
-	Billing        AddressRequest     `json:"billing"`
-	ShippingMethod string             `json:"shipping_method"`
-	PaymentMethod  string             `json:"payment_method"`
-	CustomerNote   *string            `json:"customer_note"`
-	CouponCode     *string            `json:"coupon_code"`
-}
-
-type OrderItemRequest struct {
-	ProductID uuid.UUID  `json:"product_id" validate:"required"`
-	VariantID *uuid.UUID `json:"variant_id"`
-	Quantity  int        `json:"quantity" validate:"required,gte=1"`
-}
-
-type AddressRequest struct {
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	Company   *string `json:"company"`
-	Address   string  `json:"address"`
-	City      string  `json:"city"`
-	Zip       string  `json:"zip"`
-	Country   string  `json:"country"`
-	Phone     *string `json:"phone"`
-	Email     string  `json:"email"`
-}
-
-type PaginatedResponse struct {
-	Data       interface{} `json:"data"`
-	Page       int         `json:"page"`
-	Limit      int         `json:"limit"`
-	Total      int64       `json:"total"`
-	TotalPages int         `json:"total_pages"`
-}
-
-type AnalyticsResponse struct {
-	Period     int                    `json:"period"`
-	Summary    AnalyticsSummary       `json:"summary"`
-	DailyStats []DailyStats           `json:"daily_stats"`
-	TopProducts []ProductAnalytics    `json:"top_products"`
-}
-
-type AnalyticsSummary struct {
-	TotalRevenue      float64 `json:"total_revenue"`
-	TotalOrders       int     `json:"total_orders"`
-	CompletedOrders   int     `json:"completed_orders"`
-	PendingOrders     int     `json:"pending_orders"`
-	CancelledOrders   int     `json:"cancelled_orders"`
-	AverageOrderValue float64 `json:"average_order_value"`
-	NewCustomers      int     `json:"new_customers"`
-	TotalCustomers    int     `json:"total_customers"`
-	RevenueChange     float64 `json:"revenue_change"`
-	OrdersChange      float64 `json:"orders_change"`
-}
-
-type ProductAnalytics struct {
-	ProductID uuid.UUID `json:"product_id"`
-	Name      string    `json:"name"`
-	Quantity  int       `json:"quantity"`
-	Revenue   float64   `json:"revenue"`
+var TargetFields = []TargetFieldInfo{
+	{Key: "ean", Label: "EAN / GTIN", Group: "identifiers", Required: false},
+	{Key: "sku", Label: "SKU", Group: "identifiers", Required: false},
+	{Key: "external_id", Label: "External ID", Group: "identifiers", Required: false},
+	{Key: "title", Label: "Product Name", Group: "basic", Required: true},
+	{Key: "description", Label: "Description", Group: "basic", Required: false},
+	{Key: "short_description", Label: "Short Description", Group: "basic", Required: false},
+	{Key: "price", Label: "Price", Group: "pricing", Required: true},
+	{Key: "regular_price", Label: "Regular Price", Group: "pricing", Required: false},
+	{Key: "sale_price", Label: "Sale Price", Group: "pricing", Required: false},
+	{Key: "stock_status", Label: "Stock Status", Group: "inventory", Required: false},
+	{Key: "stock_quantity", Label: "Stock Quantity", Group: "inventory", Required: false},
+	{Key: "image_url", Label: "Main Image", Group: "media", Required: false},
+	{Key: "gallery_images", Label: "Gallery Images", Group: "media", Required: false},
+	{Key: "category", Label: "Category", Group: "taxonomy", Required: false},
+	{Key: "brand", Label: "Brand", Group: "attributes", Required: false},
+	{Key: "manufacturer", Label: "Manufacturer", Group: "attributes", Required: false},
+	{Key: "attributes", Label: "Attributes (PARAM)", Group: "attributes", Required: false},
+	{Key: "affiliate_url", Label: "Affiliate URL", Group: "affiliate", Required: false},
+	{Key: "button_text", Label: "Button Text", Group: "affiliate", Required: false},
+	{Key: "delivery_time", Label: "Delivery Time", Group: "other", Required: false},
 }
