@@ -133,7 +133,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var userID string
 	err = h.db.QueryRow(ctx, `
 		INSERT INTO users (email, password_hash, name, role)
-		VALUES ($1, $2, $3, 'admin')
+		VALUES ($1, $2, $3, 'merchant')
 		RETURNING id
 	`, req.Email, string(hash), req.Name).Scan(&userID)
 
